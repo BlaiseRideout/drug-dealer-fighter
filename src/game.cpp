@@ -12,7 +12,7 @@ void Game::update() {
 
 void Game::draw() {
   Graphics::clearScreen();
-  glfwSwapBuffers();
+  //this->m->draw();
 }
 
 void Game::init() {
@@ -23,6 +23,7 @@ void Game::run() {
   while(this->running && glfwGetWindowParam(GLFW_OPENED)) {
     update();
     draw();
+    glfwSwapBuffers();
   }
 }
 

@@ -10,12 +10,16 @@
 
 int Graphics::width = 800;
 int Graphics::height = 600;
+glm::mat4 Graphics::projection = glm::mat4(0);
+glm::mat4 Graphics::orthographic = glm::mat4(0);
 
 extern const GLubyte *gluErrorString(GLenum error);
 
 void Graphics::init(int width, int height, bool fullscreen) {
   Graphics::width = width;
   Graphics::height = height;
+  Graphics::projection = glm::perspective(45.0f, (float)Graphics::width / (float)Graphics::height, 0.1f, 100.0f);
+  Graphics::orthographic = glm::ortho(0, Graphics::width, Graphics::height, 0, -1, 1);
 
   Graphics::initGlfw(fullscreen);
   Graphics::initGL();
@@ -50,14 +54,14 @@ void Graphics::initGlfw(bool fullscreen) {
     throw std::runtime_error("Failed to initialize GLFW.");
 
   //use opengl 3.3
-  glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 3);
+  glfwOpenWindowHint(GLFW_OPENGL_VERSION_MAJOR, 2);
   glfwOpenWindowHint(GLFW_OPENGL_VERSION_MINOR, 1);
   //user can't resize window
   glfwOpenWindowHint(GLFW_WINDOW_NO_RESIZE, GL_TRUE);
   glfwOpenWindowHint(GLFW_FSAA_SAMPLES, 4); // 4x antialiasing
 
   //open glfw window
-  if (!glfwOpenWindow(Graphics::width, Graphics::height, 8, 8, 8, 8, 8, 8, fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW))
+  if (!glfwOpenWindow(Graphics::width, Graphics::height, 0, 0, 0, 0, 0, 0, fullscreen ? GLFW_FULLSCREEN : GLFW_WINDOW))
     throw std::runtime_error("Failed to open GLFW window.");
 
   //center window onscreen

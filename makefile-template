@@ -10,7 +10,7 @@ LDFLAGS = -lglfw -lGL -lGLEW -lGLU
 CFLAGS = --std=c++11 -Wall -O2
 INC = -Iinc
 
-_OBJS = main.o game.o graphics.o shader.o model.o
+_OBJS = main.o game.o graphics.o shader.o model.o vertex.o
 OBJS = $(patsubst %,$(OBJ)/%,$(_OBJS))
 
 $(OBJ)/%.o: $(SRC)/%.cpp

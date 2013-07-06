@@ -2,24 +2,32 @@
 #define SHADER_H
 
 #include <string>
-#include <GL/glfw.h>
+#include <GL/gl.h>
+#include <map>
 
-class ShaderProgram;
+#include "model.hpp"
+#include "camera.hpp"
+
+class Shader;
 class VertexShader;
 class FragmentShader;
+class ShaderProgram;
 
 class Shader {
 	public:
 		~Shader();
 	protected:
-		GLuint id;
+		GLint id;
 
-		void load(std::string filename);
+		void 								load(std::string filename);
+		virtual std::string loadCode(std::string filename);
 };
 
 class VertexShader : Shader {
 	public:
 		VertexShader(std::string filename);
+	protected:
+		std::string loadCode(std::string filename);
 	friend class ShaderProgram;
 };
 
@@ -31,12 +39,29 @@ class FragmentShader : Shader {
 
 class ShaderProgram {
 	public:
-		ShaderProgram(VertexShader &vshader, FragmentShader &pshader);
+		ShaderProgram(FragmentShader&, VertexShader&);
+		ShaderProgram(VertexShader&, FragmentShader&);
+
+
+		template<class T>
+		void setUniform(std::string, T);
 		void use();
+		bool isSet(std::string);
+		void draw(Model&, glm::mat4 M, glm::mat4 V, glm::mat4 P);
+    void draw(Model&, glm::vec3 center, Camera &c);
+    void draw(Model&, glm::mat4 M, Camera &c);
+    void draw(Model&, glm::mat4 M, glm::mat4 V);
+    void draw(Model&);
+    static ShaderProgram *getCurrent();
+    
 	protected:
-		GLuint id;
+		GLint getUniformLocation(std::string);
+
+		static ShaderProgram *current;
+		GLint id;
 		VertexShader &vshader;
 		FragmentShader &fshader;
+		std::map<std::string, GLint> uids;
 };
 
 #endif

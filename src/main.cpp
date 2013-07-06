@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <iostream>
+#include <glm/glm.hpp>
 
 #include "game.hpp"
 

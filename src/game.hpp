@@ -2,6 +2,7 @@
 #define GAME_H
 
 #include "graphics.hpp"
+#include "model.hpp"
 
 class Game {
     public:
@@ -10,10 +11,12 @@ class Game {
         void run();
         void cleanup();
     protected:
-        void update();
-        void draw();
+        virtual void update();
+        virtual void draw();
     private:
         bool running;
+        Model *m;
+        ShaderProgram *p;
 };
 
 #endif

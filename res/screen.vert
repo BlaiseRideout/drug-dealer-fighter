@@ -1,9 +1,4 @@
 #version 330 core
-layout(location = 0) in vec3 vertexPosition;
-layout(location = 1) in vec3 vertexNormal;
-uniform mat4 M;
-uniform mat4 V;
-uniform mat4 P;
 uniform vec3 cameraPosition;
 uniform float in_Color;
 uniform float in_Alpha;

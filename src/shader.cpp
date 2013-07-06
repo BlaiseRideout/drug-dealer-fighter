@@ -2,24 +2,20 @@
 #include <fstream>
 #include <GL/glew.h>
 #include <vector>
+#include <stdexcept>
+#include <glm/glm.hpp>
 
 #include "shader.hpp"
+
+//ShaderProgram *ShaderProgram::current = NULL;
 
 Shader::~Shader() {
 	glDeleteShader(this->id);
 }
 
 void Shader::load(std::string filename) {
-    // Read the shader code from the file
-    std::string ShaderCode;
-    std::ifstream ShaderStream(filename.c_str(), std::ios::in);
-    if(ShaderStream.is_open()){
-        std::string Line = "";
-        while(getline(ShaderStream, Line))
-            ShaderCode += "\n" + Line;
-        ShaderStream.close();
-    }
- 
+    std::string ShaderCode = this->loadCode(filename);
+
     GLint Result = GL_FALSE;
     int InfoLogLength;
  
@@ -37,6 +33,46 @@ void Shader::load(std::string filename) {
     fprintf(stdout, "%s\n", &ShaderErrorMessage[0]);
 }
 
+std::string Shader::loadCode(std::string filename) {
+    // Read the shader code from the file
+    std::string ShaderCode;
+    std::ifstream ShaderStream(filename.c_str(), std::ios::in);
+
+    if(ShaderStream.is_open()){
+        std::string Line = "";
+        while(getline(ShaderStream, Line))
+            ShaderCode += "\n" + Line;
+        ShaderStream.close();
+    }
+    return ShaderCode;
+}
+
+std::string VertexShader::loadCode(std::string filename) {
+    // Read the shader code from the file
+    std::string ShaderCode;
+    std::ifstream ShaderStream(filename.c_str(), std::ios::in);
+
+    if(ShaderStream.is_open()){
+        std::string Line = "";
+        getline(ShaderStream, Line);
+        while(Line[0] == '#') {
+            ShaderCode += "\n" + Line;
+            getline(ShaderStream, Line);
+        }
+        ShaderCode += "\nlayout(location = 0) in vec3 vertexPosition;"
+        "\nlayout(location = 1) in vec3 vertexTexCoord;"
+        "\nlayout(location = 2) in vec3 vertexNormal;"
+        "\nuniform mat4 M;"
+        "\nuniform mat4 V;"
+        "\nuniform mat4 P;";
+        
+        while(getline(ShaderStream, Line))
+            ShaderCode += "\n" + Line;
+        ShaderStream.close();
+    }
+    return ShaderCode;
+}
+
 VertexShader::VertexShader(std::string filename) {
 	this->id = glCreateShader(GL_VERTEX_SHADER);
 	this->load(filename);
@@ -50,9 +86,6 @@ FragmentShader::FragmentShader(std::string filename) {
 ShaderProgram::ShaderProgram(VertexShader &vshader, FragmentShader &fshader) : vshader(vshader), fshader(fshader) {
 	GLint Result = GL_FALSE;
     int InfoLogLength;
-
-	this->vshader = vshader;
-	this->fshader = fshader;
 
 	// Link the program
     fprintf(stdout, "Linking program\n");
@@ -69,6 +102,76 @@ ShaderProgram::ShaderProgram(VertexShader &vshader, FragmentShader &fshader) : v
     fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
 }
 
+ShaderProgram::ShaderProgram(FragmentShader &fshader, VertexShader &vshader) : vshader(vshader), fshader(fshader){
+    ShaderProgram(vshader, fshader);
+}
+
+template<>
+void ShaderProgram::setUniform(std::string name, int value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniform1i(uid, value);
+}
+
+template<>
+void ShaderProgram::setUniform(std::string name, float value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniform1f(uid, value);
+}
+
+template<>
+void ShaderProgram::setUniform(std::string name, glm::vec4 value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniform4f(uid, value.x, value.y, value.z, value.w);
+}
+
+template<>
+void ShaderProgram::setUniform(std::string name, glm::vec3 value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniform3f(uid, value.x, value.y, value.z);
+}
+
+template<>
+void ShaderProgram::setUniform(std::string name, glm::vec2 value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniform2f(uid, value.x, value.y);
+}
+
+template<class T>
+void ShaderProgram::setUniform(std::string name, T value) {
+   throw std::runtime_error("Unknown type when setting shader uniform: " + name);
+}
+
+GLint ShaderProgram::getUniformLocation(std::string name) {
+    if(name == "M")
+        throw std::runtime_error("Accessed reserved uniform name M");
+    auto iterid = this->uids.find(name);
+    if(iterid != this->uids.end())
+        return iterid->second;
+    else{
+        GLint uid = glGetUniformLocation(this->id, name.c_str());
+        if(uid == -1)
+            throw std::runtime_error("Uniform not defined by shader: " + name);
+        else
+            this->uids.insert(std::pair<std::string, GLint>(name, uid));
+        return uid;
+    }
+}
+
+bool ShaderProgram::isSet(std::string name) {
+    auto iterid = this->uids.find(name);
+    return iterid != this->uids.end();
+}
+
+void ShaderProgram::draw(Model &m) {
+    this->use();
+    m.draw();
+}
+
+ShaderProgram *ShaderProgram::getCurrent() {
+    return ShaderProgram::current;
+}
+
 void ShaderProgram::use() {
 	glUseProgram(this->id);
+    ShaderProgram::current = this;
 }

@@ -1,14 +1,25 @@
 #ifndef MODEL_H
 #define MODEL_H
 #include <string>
+#include <glm/glm.hpp>
 
-#include "graphics.hpp"
+class Model;
+
+#include "shader.hpp"
+#include "vertex.hpp"
+#include "camera.hpp"
 
 class Model {
 	public:
-		Model(string filename);
+    Model(std::string);
 
-		void draw(Graphics g, float x, float y, float scale);	
+    void draw();
+	private:
+    GLuint positions;
+    GLuint uvs;
+    GLuint normals;
+    GLuint indices;
+    unsigned int numIndices;
 };
 
 #endif
