@@ -4,9 +4,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
-#include <fstream>
-#include <vector>
-#include <algorithm>
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "graphics.hpp"
@@ -35,7 +32,7 @@ void Graphics::clearScreen() {
 void Graphics::initGL() {
   GLenum err = glewInit();
   if (GLEW_OK != err)
-    std::cerr << "Error: " << glewGetErrorString(err) << std::endl;
+    throw std::runtime_error(std::string((const char *)glewGetErrorString(err)));
 
   glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 0.0f);
   glViewport(0, 0, Graphics::width, Graphics::height);
@@ -69,8 +66,8 @@ void Graphics::initGlfw(bool fullscreen) {
   glfwSetWindowPos(vm.Width / 2 - width / 2, vm.Height / 2 - height / 2);
 
   //set title
-  glfwSetWindowTitle("4DPong");
-  //vsync i think: 0 = no, 1 = yes
+  glfwSetWindowTitle("Divamia");
+  //vsync: 0 = no, 1 = yes
   glfwSwapInterval(1);
 
   std::cout << glGetString(GL_VERSION) << std::endl;
