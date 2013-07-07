@@ -1,6 +1,7 @@
 #include <vector>
 #include <stdexcept>
 #include <string>
+#include <iostream>
 #include <fstream>
 #include <sstream>
 #include <GL/glew.h>
@@ -21,7 +22,7 @@ Model::Model(std::string filename) {
 	std::string line = "";
 
 	while(std::getline(file, line)){
-    if(line[0] == 'v'){
+    if(line.substr(0, 2) == "v "){
 	    glm::vec3 vertex;
 	    std::stringstream s(line.substr(2));
 	    s >> vertex.x;
@@ -74,14 +75,23 @@ Model::Model(std::string filename) {
 	  	catch(...) {
 	  		throw std::runtime_error("Error parsing model: " + filename);
 	  	}
-	    
+	    std::cout << line << std::endl;
 	    //int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] ); 
 	    for(int i = 0; i < 3; ++i) {
+	    	if(vertexIndex[i] >= temp_positions.size())
+	    		throw std::runtime_error("Vertex index out of bounds in model " + filename);
+	    	if(uvIndex[i] >= temp_uvs.size())
+	    		throw std::runtime_error("UV index out of bounds in model " + filename);
+	    	if(normalIndex[i] >= temp_normals.size())
+	    		throw std::runtime_error("Normal index out of bounds in model " + filename);
+
 	    	Vertex vert(temp_positions[vertexIndex[i]], temp_uvs[uvIndex[i]], temp_normals[normalIndex[i]]);
 	    	unsigned int j;
 	    	for(j = 0; j < temp_vertices.size() && temp_vertices[j] != vert; ++j);
 
 		    if(j == temp_vertices.size()) {
+		    	std::cout << "Adding vertex" << std::endl;
+
 		    	temp_indices.push_back(temp_vertices.size());
 		    	temp_vertices.push_back(vert);
 		    }

@@ -39,7 +39,6 @@ class FragmentShader : Shader {
 
 class ShaderProgram {
 	public:
-		ShaderProgram(FragmentShader&, VertexShader&);
 		ShaderProgram(VertexShader&, FragmentShader&);
 
 

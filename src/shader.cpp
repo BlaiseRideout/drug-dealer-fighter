@@ -7,7 +7,7 @@
 
 #include "shader.hpp"
 
-//ShaderProgram *ShaderProgram::current = NULL;
+ShaderProgram *ShaderProgram::current = NULL;
 
 Shader::~Shader() {
 	glDeleteShader(this->id);
@@ -61,14 +61,13 @@ std::string VertexShader::loadCode(std::string filename) {
         }
         ShaderCode += "\nlayout(location = 0) in vec3 vertexPosition;"
         "\nlayout(location = 1) in vec3 vertexTexCoord;"
-        "\nlayout(location = 2) in vec3 vertexNormal;"
-        "\nuniform mat4 M;"
-        "\nuniform mat4 V;"
-        "\nuniform mat4 P;";
+        "\nlayout(location = 2) in vec3 vertexNormal;";
+        ShaderCode += "\n" + Line;
         
         while(getline(ShaderStream, Line))
             ShaderCode += "\n" + Line;
         ShaderStream.close();
+        std::cout << ShaderCode << std::endl;
     }
     return ShaderCode;
 }
@@ -102,10 +101,6 @@ ShaderProgram::ShaderProgram(VertexShader &vshader, FragmentShader &fshader) : v
     fprintf(stdout, "%s\n", &ProgramErrorMessage[0]);
 }
 
-ShaderProgram::ShaderProgram(FragmentShader &fshader, VertexShader &vshader) : vshader(vshader), fshader(fshader){
-    ShaderProgram(vshader, fshader);
-}
-
 template<>
 void ShaderProgram::setUniform(std::string name, int value) {
     GLint uid = this->getUniformLocation(name);
@@ -136,14 +131,18 @@ void ShaderProgram::setUniform(std::string name, glm::vec2 value) {
     glUniform2f(uid, value.x, value.y);
 }
 
+template<>
+void ShaderProgram::setUniform(std::string name, glm::mat4 value) {
+    GLint uid = this->getUniformLocation(name);
+    glUniformMatrix4fv(uid, 1, GL_FALSE, &value[0][0]);
+}
+
 template<class T>
 void ShaderProgram::setUniform(std::string name, T value) {
    throw std::runtime_error("Unknown type when setting shader uniform: " + name);
 }
 
 GLint ShaderProgram::getUniformLocation(std::string name) {
-    if(name == "M")
-        throw std::runtime_error("Accessed reserved uniform name M");
     auto iterid = this->uids.find(name);
     if(iterid != this->uids.end())
         return iterid->second;

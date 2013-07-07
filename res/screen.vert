@@ -1,5 +1,7 @@
 #version 330 core
-uniform vec3 cameraPosition;
+uniform mat4 M;
+uniform mat4 V;
+uniform mat4 P;
 uniform float in_Color;
 uniform float in_Alpha;
 
