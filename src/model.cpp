@@ -40,9 +40,9 @@ Model::Model(std::string filename) {
 		else if(line.substr(0, 2) == "vn"){
 			std::stringstream s(line.substr(3));
 	    glm::vec3 normal;
-	    file >> normal.x;
-	    file >> normal.y;
-	    file >> normal.z;
+	    s >> normal.x;
+	    s >> normal.y;
+	    s >> normal.z;
 	    temp_normals.push_back(normal);
 		}
 		else if(line[0] == 'f'){
@@ -75,23 +75,20 @@ Model::Model(std::string filename) {
 	  	catch(...) {
 	  		throw std::runtime_error("Error parsing model: " + filename);
 	  	}
-	    std::cout << line << std::endl;
-	    //int matches = fscanf(file, "%d/%d/%d %d/%d/%d %d/%d/%d\n", &vertexIndex[0], &uvIndex[0], &normalIndex[0], &vertexIndex[1], &uvIndex[1], &normalIndex[1], &vertexIndex[2], &uvIndex[2], &normalIndex[2] ); 
+
 	    for(int i = 0; i < 3; ++i) {
-	    	if(vertexIndex[i] >= temp_positions.size())
+	    	if(vertexIndex[i] - 1 >= temp_positions.size())
 	    		throw std::runtime_error("Vertex index out of bounds in model " + filename);
-	    	if(uvIndex[i] >= temp_uvs.size())
+	    	if(uvIndex[i] - 1 >= temp_uvs.size())
 	    		throw std::runtime_error("UV index out of bounds in model " + filename);
-	    	if(normalIndex[i] >= temp_normals.size())
+	    	if(normalIndex[i] - 1 >= temp_normals.size())
 	    		throw std::runtime_error("Normal index out of bounds in model " + filename);
 
-	    	Vertex vert(temp_positions[vertexIndex[i]], temp_uvs[uvIndex[i]], temp_normals[normalIndex[i]]);
+	    	Vertex vert(temp_positions[vertexIndex[i] - 1], temp_uvs[uvIndex[i] - 1], temp_normals[normalIndex[i] - 1]);
 	    	unsigned int j;
 	    	for(j = 0; j < temp_vertices.size() && temp_vertices[j] != vert; ++j);
 
 		    if(j == temp_vertices.size()) {
-		    	std::cout << "Adding vertex" << std::endl;
-
 		    	temp_indices.push_back(temp_vertices.size());
 		    	temp_vertices.push_back(vert);
 		    }

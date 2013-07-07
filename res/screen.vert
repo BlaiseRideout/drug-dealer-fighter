@@ -2,8 +2,7 @@
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
-uniform float in_Color;
-uniform float in_Alpha;
+uniform vec3 color;
 
 out vec3 position_worldspace;
 out vec3 EyeDirection_cameraspace;

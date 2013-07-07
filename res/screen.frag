@@ -1,6 +1,5 @@
 #version 330 core
-uniform float in_Color;
-uniform float in_Alpha;
+uniform vec3 color;
 in vec3 position_worldspace;
 in vec3 EyeDirection_cameraspace;
 in vec3 LightDirection_cameraspace;
@@ -22,7 +21,7 @@ void main(){
   //  - Looking elsewhere -> < 1
   float cosAlpha = clamp( dot( E,R ), 0,1 );
 
-  vec3 MaterialDiffuseColor = vec3(in_Color, 1.0f - in_Color, 0.0f);
+  vec3 MaterialDiffuseColor = color;
   vec3 MaterialAmbientColor = vec3(0.2, 0.2, 0.2) * MaterialDiffuseColor;
 
   float distance = length(LightDirection_cameraspace);
@@ -32,5 +31,5 @@ void main(){
 
   color = vec3(1.0f, 1.0f, 1.0f) * 2 * pow(cosAlpha, 5) / pow(distance, 2) + color;
 
-  vertColor = vec4(MaterialAmbientColor + color, in_Alpha);
+  vertColor = vec4(MaterialAmbientColor + color, 1.0f);
 }

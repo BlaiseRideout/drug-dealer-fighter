@@ -43,23 +43,28 @@ class ShaderProgram {
 
 		template<class T>
 		void setUniform(std::string, T);
-		void use();
 		bool isSet(std::string);
 		void draw(Model&, glm::mat4 M, glm::mat4 V, glm::mat4 P);
     void draw(Model&, glm::vec3 center, Camera &c);
     void draw(Model&, glm::mat4 M, Camera &c);
     void draw(Model&, glm::mat4 M, glm::mat4 V);
     void draw(Model&);
-    static ShaderProgram *getCurrent();
     
 	protected:
 		GLint getUniformLocation(std::string);
+		void prepareContext();
 
-		static ShaderProgram *current;
 		GLint id;
 		VertexShader &vshader;
 		FragmentShader &fshader;
 		std::map<std::string, GLint> uids;
+
+		std::map<GLint, int> ints;
+		std::map<GLint, float> floats;
+		std::map<GLint, glm::vec4> vec4s;
+		std::map<GLint, glm::vec3> vec3s;
+		std::map<GLint, glm::vec2> vec2s;
+		std::map<GLint, glm::mat4> mat4s;
 };
 
 #endif

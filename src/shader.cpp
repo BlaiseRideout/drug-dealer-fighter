@@ -7,8 +7,6 @@
 
 #include "shader.hpp"
 
-ShaderProgram *ShaderProgram::current = NULL;
-
 Shader::~Shader() {
 	glDeleteShader(this->id);
 }
@@ -103,37 +101,37 @@ ShaderProgram::ShaderProgram(VertexShader &vshader, FragmentShader &fshader) : v
 template<>
 void ShaderProgram::setUniform(std::string name, int value) {
     GLint uid = this->getUniformLocation(name);
-    glUniform1i(uid, value);
+    this->ints.insert(std::pair<GLint, int>(uid, value));
 }
 
 template<>
 void ShaderProgram::setUniform(std::string name, float value) {
     GLint uid = this->getUniformLocation(name);
-    glUniform1f(uid, value);
+    this->floats.insert(std::pair<GLint, float>(uid, value));
 }
 
 template<>
 void ShaderProgram::setUniform(std::string name, glm::vec4 value) {
     GLint uid = this->getUniformLocation(name);
-    glUniform4f(uid, value.x, value.y, value.z, value.w);
+    this->vec4s.insert(std::pair<GLint, glm::vec4>(uid, value));
 }
 
 template<>
 void ShaderProgram::setUniform(std::string name, glm::vec3 value) {
     GLint uid = this->getUniformLocation(name);
-    glUniform3f(uid, value.x, value.y, value.z);
+    this->vec3s.insert(std::pair<GLint, glm::vec3>(uid, value));
 }
 
 template<>
 void ShaderProgram::setUniform(std::string name, glm::vec2 value) {
     GLint uid = this->getUniformLocation(name);
-    glUniform2f(uid, value.x, value.y);
+    this->vec2s.insert(std::pair<GLint, glm::vec2>(uid, value));
 }
 
 template<>
 void ShaderProgram::setUniform(std::string name, glm::mat4 value) {
     GLint uid = this->getUniformLocation(name);
-    glUniformMatrix4fv(uid, 1, GL_FALSE, &value[0][0]);
+    this->mat4s.insert(std::pair<GLint, glm::mat4>(uid, value));
 }
 
 template<class T>
@@ -160,16 +158,23 @@ bool ShaderProgram::isSet(std::string name) {
     return iterid != this->uids.end();
 }
 
+void ShaderProgram::prepareContext() {
+    for(auto i = this->ints.begin(); i != this->ints.end(); ++i)
+        glUniform1i(i->first, i->second);
+    for(auto i = this->floats.begin(); i != this->floats.end(); ++i)
+        glUniform1f(i->first, i->second);
+    for(auto i = this->vec4s.begin(); i != this->vec4s.end(); ++i)
+        glUniform4f(i->first, i->second.x, i->second.y, i->second.z, i->second.w);
+    for(auto i = this->vec3s.begin(); i != this->vec3s.end(); ++i)
+        glUniform3f(i->first, i->second.x, i->second.y, i->second.z);
+    for(auto i = this->vec2s.begin(); i != this->vec2s.end(); ++i)
+        glUniform2f(i->first, i->second.x, i->second.y);
+    for(auto i = this->mat4s.begin(); i != this->mat4s.end(); ++i)
+        glUniformMatrix4fv(i->first, 1, GL_FALSE, &i->second[0][0]);
+}
+
 void ShaderProgram::draw(Model &m) {
-    this->use();
+    glUseProgram(this->id);
+    this->prepareContext();
     m.draw();
-}
-
-ShaderProgram *ShaderProgram::getCurrent() {
-    return ShaderProgram::current;
-}
-
-void ShaderProgram::use() {
-	glUseProgram(this->id);
-    ShaderProgram::current = this;
 }
