@@ -23,7 +23,6 @@ void Game::init() {
   VertexShader &v = (VertexShader&)*new VertexShader("res/screen.vert");
 
   this->p = new ShaderProgram(v, f);
-  std::cout << Graphics::width << " " << Graphics::height << std::endl;
   this->p->setUniform("P", glm::perspective(45.0f, (float)Graphics::width / (float)Graphics::height, 0.1f, 100.0f));
   this->p->setUniform("V", glm::lookAt(glm::vec3(-4, 0, -4), glm::vec3(0, 0, 0), glm::vec3(0, 1, 0)));
   this->p->setUniform("M", glm::scale(glm::mat4(1.0f), glm::vec3(.01)));

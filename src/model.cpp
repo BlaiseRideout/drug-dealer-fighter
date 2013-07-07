@@ -53,7 +53,6 @@ Model::Model(std::string filename) {
 	    std::smatch match;
 
 	    try {
-	    	std::cout << "Parsing vertices" << std::endl;
 	    	while(std::getline(s, line, ' ')) {
 	    		std::string num = "";
 	    		if(line.size() == 1)
@@ -79,7 +78,6 @@ Model::Model(std::string filename) {
   					uvIndex.push_back(atoi(num.c_str()));
   				else if(j == 2)
   					normalIndex.push_back(atoi(num.c_str()));
-	    		std::cout << vertexIndex[vertexIndex.size() - 1] << " " << uvIndex[uvIndex.size() - 1] << " " << normalIndex[normalIndex.size() - 1] << std::endl;
 	    	}
 	  	}
 	  	catch(...) {
@@ -137,8 +135,6 @@ Model::Model(std::string filename) {
 	  	}
 		}
 	}
-
-	std::cout << temp_indices.size() << std::endl;
 
 	temp_positions.clear();
 	temp_uvs.clear();
