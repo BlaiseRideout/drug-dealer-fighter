@@ -67,7 +67,6 @@ std::string VertexShader::loadCode(std::string filename) {
         while(getline(ShaderStream, Line))
             ShaderCode += "\n" + Line;
         ShaderStream.close();
-        std::cout << ShaderCode << std::endl;
     }
     return ShaderCode;
 }

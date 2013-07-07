@@ -41,7 +41,6 @@ class ShaderProgram {
 	public:
 		ShaderProgram(VertexShader&, FragmentShader&);
 
-
 		template<class T>
 		void setUniform(std::string, T);
 		void use();
