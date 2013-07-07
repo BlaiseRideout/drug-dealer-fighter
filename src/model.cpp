@@ -5,6 +5,7 @@
 #include <fstream>
 #include <sstream>
 #include <GL/glew.h>
+#include <regex>
 
 #include "model.hpp"
 
@@ -46,57 +47,98 @@ Model::Model(std::string filename) {
 	    temp_normals.push_back(normal);
 		}
 		else if(line[0] == 'f'){
+	    std::vector<unsigned int> vertexIndex, uvIndex, normalIndex;
 			std::stringstream s(line.substr(2));
-	    unsigned int vertexIndex[3], uvIndex[3], normalIndex[3];
-	    std::string num;
+			std::string line;
+	    std::smatch match;
 
 	    try {
-		    std::getline(s, num, '/');
-				vertexIndex[0] = atof(num.c_str());
-		    std::getline(s, num, '/');
-		    uvIndex[0] = atof(num.c_str());
-		    std::getline(s, num, ' ');
-		    normalIndex[0] = atof(num.c_str());
-
-		    std::getline(s, num, '/');
-		    vertexIndex[1] = atof(num.c_str());
-		    std::getline(s, num, '/');
-		    uvIndex[1] = atof(num.c_str());
-		    std::getline(s, num, ' ');
-		    normalIndex[1] = atof(num.c_str());
-
-		    std::getline(s, num, '/');
-		    vertexIndex[2] = atof(num.c_str());
-		    std::getline(s, num, '/');
-		    uvIndex[2] = atof(num.c_str());
-		    std::getline(s, num);
-		    normalIndex[2] = atof(num.c_str());
+	    	std::cout << "Parsing vertices" << std::endl;
+	    	while(std::getline(s, line, ' ')) {
+	    		std::string num = "";
+	    		if(line.size() == 1)
+	    			continue;
+	    		int j = 0;
+	    		for(unsigned int i = 0; i < line.size(); ++i) {
+	    			if(line[i] == '/') {
+	    				if(j == 0)
+	    					vertexIndex.push_back(atoi(num.c_str()));
+	    				else if(j == 1)
+	    					uvIndex.push_back(atoi(num.c_str()));
+	    				else if(j == 2)
+	    					normalIndex.push_back(atoi(num.c_str()));
+	    				num = "";
+	    				j++;
+	    			}
+	    			else
+	    				num += line[i];
+	    		}
+	    		if(j == 0)
+  					vertexIndex.push_back(atoi(num.c_str()));
+  				else if(j == 1)
+  					uvIndex.push_back(atoi(num.c_str()));
+  				else if(j == 2)
+  					normalIndex.push_back(atoi(num.c_str()));
+	    		std::cout << vertexIndex[vertexIndex.size() - 1] << " " << uvIndex[uvIndex.size() - 1] << " " << normalIndex[normalIndex.size() - 1] << std::endl;
+	    	}
 	  	}
 	  	catch(...) {
 	  		throw std::runtime_error("Error parsing model: " + filename);
 	  	}
 
-	    for(int i = 0; i < 3; ++i) {
-	    	if(vertexIndex[i] - 1 >= temp_positions.size())
-	    		throw std::runtime_error("Vertex index out of bounds in model " + filename);
-	    	if(uvIndex[i] - 1 >= temp_uvs.size())
-	    		throw std::runtime_error("UV index out of bounds in model " + filename);
-	    	if(normalIndex[i] - 1 >= temp_normals.size())
-	    		throw std::runtime_error("Normal index out of bounds in model " + filename);
+	  	if(vertexIndex.size() == 3) {
+		    for(int i = 0; i < 3; ++i) {
+		    	if(vertexIndex[i] - 1 >= temp_positions.size())
+		    		throw std::runtime_error("Vertex index out of bounds in model " + filename);
+		    	if(uvIndex[i] - 1 >= temp_uvs.size())
+		    		throw std::runtime_error("UV index out of bounds in model " + filename);
+		    	if(normalIndex[i] - 1 >= temp_normals.size())
+		    		throw std::runtime_error("Normal index out of bounds in model " + filename);
 
-	    	Vertex vert(temp_positions[vertexIndex[i] - 1], temp_uvs[uvIndex[i] - 1], temp_normals[normalIndex[i] - 1]);
-	    	unsigned int j;
-	    	for(j = 0; j < temp_vertices.size() && temp_vertices[j] != vert; ++j);
+		    	Vertex vert(temp_positions[vertexIndex[i] - 1], temp_uvs[uvIndex[i] - 1], temp_normals[normalIndex[i] - 1]);
+		    	unsigned int j;
+		    	for(j = 0; j < temp_vertices.size() && temp_vertices[j] != vert; ++j);
 
-		    if(j == temp_vertices.size()) {
-		    	temp_indices.push_back(temp_vertices.size());
-		    	temp_vertices.push_back(vert);
-		    }
-		    else
-		    	temp_indices.push_back(j);
+			    if(j == temp_vertices.size()) {
+			    	temp_indices.push_back(temp_vertices.size());
+			    	temp_vertices.push_back(vert);
+			    }
+			    else
+			    	temp_indices.push_back(j);
+		  	}
+	  	}
+	  	else if(vertexIndex.size() == 4) {
+	  		int verts[6] = {0, 1, 3, 1, 2, 3};
+	  		std::vector<unsigned int> vertexIndex3, uvIndex3, normalIndex3;
+	  		for(int i = 0; i < 6; ++i) {
+	  			vertexIndex3.push_back(vertexIndex[verts[i]]);
+	  			uvIndex3.push_back(uvIndex[verts[i]]);
+	  			normalIndex3.push_back(normalIndex[verts[i]]);
+	  		}
+	  		for(int i = 0; i < 6; ++i) {
+		    	if(vertexIndex3[i] - 1 >= temp_positions.size())
+		    		throw std::runtime_error("Vertex index out of bounds in model " + filename);
+		    	if(uvIndex3[i] - 1 >= temp_uvs.size())
+		    		throw std::runtime_error("UV index out of bounds in model " + filename);
+		    	if(normalIndex3[i] - 1 >= temp_normals.size())
+		    		throw std::runtime_error("Normal index out of bounds in model " + filename);
+
+		    	Vertex vert(temp_positions[vertexIndex3[i] - 1], temp_uvs[uvIndex3[i] - 1], temp_normals[normalIndex3[i] - 1]);
+		    	unsigned int j;
+		    	for(j = 0; j < temp_vertices.size() && temp_vertices[j] != vert; ++j);
+
+			    if(j == temp_vertices.size()) {
+			    	temp_indices.push_back(temp_vertices.size());
+			    	temp_vertices.push_back(vert);
+			    }
+			    else
+			    	temp_indices.push_back(j);
+		  	}
 	  	}
 		}
 	}
+
+	std::cout << temp_indices.size() << std::endl;
 
 	temp_positions.clear();
 	temp_uvs.clear();
