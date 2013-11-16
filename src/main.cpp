@@ -2,14 +2,12 @@
 #include <iostream>
 #include <glm/glm.hpp>
 
-#include "game.hpp"
+#include "demo.hpp"
 
 int main(int argc, char **argv) {
   try {
-    Game game;
-    game.init();
+    Demo game;
     game.run();
-    game.cleanup();
     return 0;
   }
   catch(const std::exception &exc) {

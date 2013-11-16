@@ -1,22 +1,22 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "graphics.hpp"
-#include "model.hpp"
+#include "window.hpp"
+
+#include <glm/glm.hpp>
+
 
 class Game {
     public:
         Game();
-        void init();
+        virtual ~Game();
         void run();
-        void cleanup();
     protected:
-        virtual void update();
-        virtual void draw();
-    private:
+        virtual void update() = 0;
+        virtual void draw() = 0;
+
         bool running;
-        Model *m;
-        ShaderProgram *p;
+        Window window;
 };
 
 #endif
