@@ -1,15 +1,14 @@
 #include "buffer.hpp"
 
-Buffer::Buffer() {
+
+Buffer::Buffer() : Buffer(GL_ARRAY_BUFFER) {
 }
 
-Buffer::Buffer(Buffer const &v) : id(v.id), size(v.size), target(v.target) {
-    auto iterid = Buffer::refCount.find(this->id);
-    if(iterid != Buffer::refCount.end())
-        iterid->second = iterid->second + 1;
+Buffer::Buffer(GLenum target) : id(0), size(0), target(target) {
+
 }
 
-Buffer::Buffer(Buffer &&v) : id(v.id), size(v.size), target(v.target) {
+Buffer::Buffer(Buffer const &b) : id(b.id), size(b.size), target(b.target) {
     auto iterid = Buffer::refCount.find(this->id);
     if(iterid != Buffer::refCount.end())
         iterid->second = iterid->second + 1;
@@ -20,8 +19,12 @@ Buffer::~Buffer() {
     if(iterid != Buffer::refCount.end()) {
         iterid->second = iterid->second - 1;
         if(iterid->second == 0)
-            glDeleteBuffers(1, &this->id);
+            this->del();
     }
+}
+
+void Buffer::del() {
+    glDeleteBuffers(1, &this->id);
 }
 
 Buffer &Buffer::operator=(Buffer const &b) {
@@ -33,7 +36,7 @@ Buffer &Buffer::operator=(Buffer const &b) {
     }
     this->id = b.id;
     this->size = b.size;
-    this->target = target;
+    this->target = b.target;
     iterid = Buffer::refCount.find(this->id);
     if(iterid != Buffer::refCount.end())
         iterid->second = iterid->second + 1;
@@ -138,6 +141,10 @@ void Buffer::drawElements() {
     drawElements(GL_TRIANGLES, GL_UNSIGNED_INT);
 }
 
+void Buffer::drawElements(GLenum mode) {
+    drawElements(mode, GL_UNSIGNED_INT);
+}
+
 void Buffer::drawElements(GLenum mode, GLenum type) {
     this->bind(GL_ELEMENT_ARRAY_BUFFER);
     glDrawElements(
@@ -167,6 +174,17 @@ void Buffer::drawInstanced(GLenum mode, int count, GLenum type) {
     );
 }
 
+IndexBuffer::IndexBuffer() : Buffer(GL_ELEMENT_ARRAY_BUFFER) {
+}
+
+IndexBuffer::IndexBuffer(IndexBuffer const &b) : Buffer(b) {
+}
+
+IndexBuffer::IndexBuffer(std::vector<unsigned> const &data, GLenum usage) : Buffer(data, GL_ELEMENT_ARRAY_BUFFER, usage) {
+}
+
+IndexBuffer::IndexBuffer(std::vector<unsigned> const &data) : Buffer(data, GL_ELEMENT_ARRAY_BUFFER) {
+}
 
 
 std::map<GLuint, unsigned int> Buffer::refCount;
