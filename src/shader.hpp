@@ -7,6 +7,7 @@
 #include <map>
 #include <memory>
 #include <vector>
+#include <iostream>
 
 #include "texture.hpp"
 
@@ -17,102 +18,145 @@ class ShaderProgram;
 
 class Shader {
 	public:
-		Shader(Shader const &s);
-		Shader(Shader &&s);
-		~Shader();
-	protected:
 		Shader();
-		GLuint id;
+		Shader(std::string const &filename, GLenum type);
+		Shader(Shader const &s);
+		~Shader();
 
-		void load(std::string filename);
-		virtual std::string loadCode(std::string filename);
+		Shader &operator=(Shader const &s);
+		Shader &operator=(Shader &&s);
+		operator GLuint();
+
+		GLuint id;
+	protected:
+		void load(std::string const &filename);
+		std::string loadCode(std::string const &filename);
+		void del();
+
 		static std::map<GLuint, unsigned int> refCount;
 };
 
-class VertexShader : Shader {
+class VertexShader : public Shader {
 	public:
-		VertexShader(std::string filename);
-	friend class ShaderProgram;
+		VertexShader(std::string const &filename);
 };
 
-class FragmentShader : Shader {
+class FragmentShader : public Shader {
 	public:
-		FragmentShader(std::string filename);
-	friend class ShaderProgram;
+		FragmentShader(std::string const &filename);
+};
+
+class GeometryShader : public Shader {
+	public:
+		GeometryShader(std::string const &filename);
+};
+
+#ifdef GL_VERSION_4_3
+class ComputeShader : public Shader {
+	public:
+		ComputeShader(std::string const &filename);
+};
+#endif
+
+class TessControlShader : public Shader {
+	public:
+		TessControlShader(std::string const &filename);
+};
+
+class TessEvaluationShader : public Shader {
+	public:
+		TessEvaluationShader(std::string const &filename);
 };
 
 class Uniform {
 	public:
-		Uniform(GLint program, GLint id);
-		Uniform(GLint program, GLint id, GLenum type);
+		Uniform(GLuint program, GLuint id);
 		Uniform &operator=(int val);
 		Uniform &operator=(unsigned int val);
 		Uniform &operator=(float val);
 		Uniform &operator=(glm::vec4 const &val);
-		Uniform &operator=(glm::vec4 &&val);
 		Uniform &operator=(glm::vec3 const &val);
-		Uniform &operator=(glm::vec3 &&val);
 		Uniform &operator=(glm::vec2 const &val);
-		Uniform &operator=(glm::vec2 &&val);
 		Uniform &operator=(glm::mat4 const &val);
-		Uniform &operator=(glm::mat4 &&val);
 		Uniform &operator=(Texture const &val);
-		Uniform &operator=(Texture &&val);
 
 		std::string getName();
+		GLenum getType();
+		GLint getSize();
 	protected:
 		GLuint program;
 		GLuint id;
-		GLenum type;
 };
 
 class ShaderProgram {
 	public:
 		ShaderProgram();
 		ShaderProgram(ShaderProgram const &s);
-		ShaderProgram(ShaderProgram &&s);
-		ShaderProgram(VertexShader, FragmentShader);
-		ShaderProgram(FragmentShader, VertexShader);
+		template<typename ...S>
+		ShaderProgram(S... s);
 		~ShaderProgram();
 
 		ShaderProgram &operator=(ShaderProgram const &s);
 		ShaderProgram &operator=(ShaderProgram &&s);
+		operator GLuint();
 
-		void setUniform(std::string name, int value);
-		void setUniform(std::string name, unsigned int value);
-		void setUniform(std::string name, float value);
-		void setUniform(std::string name, glm::vec4 const &value);
-		void setUniform(std::string name, glm::vec4 &&value);
-		void setUniform(std::string name, glm::vec3 const &value);
-		void setUniform(std::string name, glm::vec3 &&value);
-		void setUniform(std::string name, glm::vec2 const &value);
-		void setUniform(std::string name, glm::vec2 &&value);
-		void setUniform(std::string name, glm::mat4 const &value);
-		void setUniform(std::string name, glm::mat4 &&value);
-		void setUniform(std::string name, Texture const &value);
-		void setUniform(std::string name, Texture &&value);
+		void setUniform(std::string const &name, int value);
+		void setUniform(std::string const &name, unsigned int value);
+		void setUniform(std::string const &name, float value);
+		void setUniform(std::string const &name, glm::vec4 const &value);
+		void setUniform(std::string const &name, glm::vec3 const &value);
+		void setUniform(std::string const &name, glm::vec2 const &value);
+		void setUniform(std::string const &name, glm::mat4 const &value);
+		void setUniform(std::string const &name, Texture const &value);
 
-		GLuint getUniformLocation(std::string name);
-		GLuint getAttribLocation(std::string name);
+		GLuint getUniformLocation(std::string const &name);
+		GLuint getAttribLocation(std::string const &name);
 
-		Uniform operator[](std::string name);
+		Uniform operator[](std::string const &name);
+		Uniform operator[](const char *name);
 		bool isSet(std::string);
 		void use();
 
+		GLuint id;
 	protected:
 		void del();
+		std::vector<Texture> &textures();
 
-		GLuint id;
 		std::map<std::string, GLuint> uids;
 		std::map<std::string, GLuint> aids;
-		std::shared_ptr<std::vector<Texture>> textures;
-		static std::map<GLuint, std::shared_ptr<std::vector<Texture>>> gtextures;
-		static std::map<GLuint, unsigned int> refCount;
-		static GLint currentProgram;
+		static std::map<GLuint, std::vector<Texture>> gtextures;
+		static std::map<GLuint, unsigned> refCount;
+		static GLuint currentProgram;
 	friend class Uniform;
-	friend class VAO;
 };
 
+template<typename ...S>
+ShaderProgram::ShaderProgram(S... s) {
+	GLint Result = GL_FALSE;
+    int InfoLogLength;
+
+	// Link the program
+    std::cout << "Linking program" << std::endl;
+    this->id = glCreateProgram();
+    std::vector<Shader> shaders({s...});
+    for(auto i = shaders.begin(); i != shaders.end(); ++i)
+    	glAttachShader(this->id, i->id);
+    glLinkProgram(this->id);
+ 
+    // Check the program
+    glGetProgramiv(this->id, GL_LINK_STATUS, &Result);
+    if(Result == GL_FALSE) {
+        glGetProgramiv(this->id, GL_INFO_LOG_LENGTH, &InfoLogLength);
+        std::string ProgramErrorMessage;
+        ProgramErrorMessage.resize(std::max(InfoLogLength, int(1)));
+        glGetProgramInfoLog(this->id, InfoLogLength, NULL, &ProgramErrorMessage[0]);
+
+        throw std::runtime_error(ProgramErrorMessage);
+    }
+
+    ShaderProgram::refCount.insert(std::pair<GLuint, unsigned>(this->id, 1));
+    ShaderProgram::gtextures.insert(std::pair<GLuint, std::vector<Texture>>(this->id, std::vector<Texture>()));
+}
 
 
 #endif
