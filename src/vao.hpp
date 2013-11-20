@@ -10,6 +10,7 @@
 class VAO {
 	public:
 		VAO();
+
 		void bind();
 		void unbind();
 		void setAttrib(GLuint attribute, Buffer const &b, int size, GLenum type, bool normalized, int divisor);
@@ -25,8 +26,13 @@ class VAO {
 		void setAttrib(ShaderProgram &&s, std::string name, Buffer const &b, int size, bool normalized);
 		void setAttrib(ShaderProgram &&s, std::string name, Buffer const &b, int size);
 	protected:
-		GLuint id = GL_MAX_VERTEX_ATTRIBS;
+		void tempBind();
+		static void curBind();
+
+		GLuint id;
 		std::map<GLuint, Buffer> attribs;
+
+		static GLuint currentVAO;
 };
 
 #endif

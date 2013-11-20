@@ -1,7 +1,9 @@
+#include "texture.hpp"
+
 #include <FreeImage.h>
 #include <vector>
+#include <iostream>
 
-#include "texture.hpp"
 
 unsigned int Texture::width() {
 	glBindTexture(GL_TEXTURE_2D, this->id);
@@ -28,12 +30,6 @@ Texture::Texture() {
 }
 
 Texture::Texture(Texture const &t) : id(t.id) {
-	auto iterid = Texture::refCount.find(this->id);
-    if(iterid != Texture::refCount.end())
-        iterid->second = iterid->second + 1;
-}
-
-Texture::Texture(Texture &&t) : id(t.id) {
 	auto iterid = Texture::refCount.find(this->id);
     if(iterid != Texture::refCount.end())
         iterid->second = iterid->second + 1;
@@ -83,8 +79,12 @@ Texture::~Texture() {
     if(iterid != Texture::refCount.end()) {
         iterid->second = iterid->second - 1;
         if(iterid->second == 0)
-            glDeleteTextures(1, &this->id);
+            this->del();
     }
+}
+
+void Texture::del() {
+	glDeleteTextures(1, &this->id);
 }
 
 Texture &Texture::operator=(Texture const &s) {
@@ -92,7 +92,7 @@ Texture &Texture::operator=(Texture const &s) {
     if(iterid != Texture::refCount.end()) {
         iterid->second = iterid->second - 1;
         if(iterid->second == 0)
-            glDeleteTextures(1, &this->id);
+            this->del();
     }
     this->id = s.id;
     iterid = Texture::refCount.find(this->id);

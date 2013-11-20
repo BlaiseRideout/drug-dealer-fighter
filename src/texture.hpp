@@ -21,6 +21,7 @@ class Texture {
 		unsigned int height();
 		void bind() const;
 	protected:
+		void del();
 		GLuint id;
 
 		static GLuint currentTexture;

@@ -9,12 +9,12 @@
 
 class FPCamera {
 	public:
-		FPCamera(Window const &window, glm::vec3 position, glm::vec3 lookAt, float sensitivity, float speed);
-		FPCamera(Window const &window, glm::vec3 position, glm::vec3 lookAt, float sensitivity);
-		FPCamera(Window const &window, glm::vec3 position, glm::vec3 lookAt);
-		FPCamera(Window const &window, glm::vec3 position, float sensitivity, float speed);
-		FPCamera(Window const &window, glm::vec3 position, float sensitivity);
-		FPCamera(Window const &window, glm::vec3 position);
+		FPCamera(Window const &window, glm::vec3 const &position, glm::vec3 const &lookAt, float sensitivity, float speed);
+		FPCamera(Window const &window, glm::vec3 const &position, glm::vec3 const &lookAt, float sensitivity);
+		FPCamera(Window const &window, glm::vec3 const &position, glm::vec3 const &lookAt);
+		FPCamera(Window const &window, glm::vec3 const &position, float sensitivity, float speed);
+		FPCamera(Window const &window, glm::vec3 const &position, float sensitivity);
+		FPCamera(Window const &window, glm::vec3 const &position);
 		FPCamera(Window const &window, float sensitivity, float speed);
 		FPCamera(Window const &window, float sensitivity);
 		FPCamera(Window const &indow);

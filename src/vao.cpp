@@ -1,14 +1,16 @@
 #include "vao.hpp"
 
+#include <iostream>
 
-VAO::VAO() {
+
+VAO::VAO() : id(0) {
 }
 
 void VAO::setAttrib(GLuint attribute, Buffer const &b, int size, GLenum type, bool normalized, int divisor) {
-	this->bind();
+	this->tempBind();
 	b.setAttrib(attribute, size, type, normalized, divisor);
 	this->attribs[attribute] = b;
-	this->unbind();
+	VAO::curBind();
 }
 
 void VAO::setAttrib(GLuint attribute, Buffer const &b, int size, GLenum type, bool normalized) {
@@ -58,11 +60,23 @@ void VAO::setAttrib(ShaderProgram &&s, std::string name, Buffer const &b, int si
 }
 
 void VAO::bind() {
-	if(this->id == GL_MAX_VERTEX_ATTRIBS)
-		glGenVertexArrays(1, &this->id);
-	glBindVertexArray(this->id);
+	this->tempBind();
+	VAO::currentVAO = this->id;
 }
 
 void VAO::unbind() {
 	glBindVertexArray(0);
+	VAO::currentVAO = 0;
 }
+
+void VAO::tempBind() {
+	if(this->id == 0)
+		glGenVertexArrays(1, &this->id);
+	glBindVertexArray(this->id);
+}
+
+void VAO::curBind() {
+	glBindVertexArray(VAO::currentVAO);
+}
+
+GLuint VAO::currentVAO = 0;
