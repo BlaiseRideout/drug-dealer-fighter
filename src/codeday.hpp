@@ -7,7 +7,6 @@
 #include "physics.hpp"
 #include "vao.hpp"
 #include "player.hpp"
-#include "box.hpp"
 
 class Codeday : public Game {
 	public:

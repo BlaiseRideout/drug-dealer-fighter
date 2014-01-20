@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <glm/glm.hpp>
 #include <sstream>
+#include <algorithm>
 
 #include "shader.hpp"
 

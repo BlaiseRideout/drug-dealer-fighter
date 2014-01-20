@@ -101,11 +101,7 @@ void Buffer::setAttrib(ShaderProgram &s, std::string name, int size, GLenum type
 }
 
 void Buffer::setAttrib(ShaderProgram &s, std::string name, int size, GLenum type, bool normalized) const {
-<<<<<<< Updated upstream
-    setAttrib(s.getAttribLocation(name), size, type, normalized);
-=======
     setAttrib(s, name, size, type, normalized, 0);
->>>>>>> Stashed changes
 }
 
 void Buffer::setAttrib(ShaderProgram &s, std::string name, int size, bool normalized) const {
@@ -122,11 +118,7 @@ void Buffer::setAttrib(ShaderProgram &&s, std::string name, int size, GLenum typ
 }
 
 void Buffer::setAttrib(ShaderProgram &&s, std::string name, int size, GLenum type, bool normalized) const {
-<<<<<<< Updated upstream
-    setAttrib(s.getAttribLocation(name), size, type, normalized);
-=======
     setAttrib(s, name, size, type, normalized, 0);
->>>>>>> Stashed changes
 }
 
 void Buffer::setAttrib(ShaderProgram &&s, std::string name, int size, bool normalized) const {
