@@ -355,11 +355,17 @@ Uniform &Uniform::operator=(Texture const &val) {
     auto i = ShaderProgram::gtextures.find(this->program);
     if(i != ShaderProgram::gtextures.end()) {
         std::vector<Texture> &textures = i->second;
-        index = textures.size();
+        auto tex = std::find(textures.begin(), textures.end(), val);
+        if(tex != textures.end())
+            index = tex - textures.begin();
+        else {
+            index = textures.size();
+            
+            textures.push_back(val);
+        }
         glUniform1i(this->id, index);
 
         glActiveTexture(GL_TEXTURE0 + index);
-        textures.push_back(val);
         textures[index].bind();
     }
 

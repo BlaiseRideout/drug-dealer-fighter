@@ -110,7 +110,7 @@ void Window::initGL() {
   glClearColor(100.0f / 255.0f, 149.0f / 255.0f, 237.0f / 255.0f, 0.0f);
   glViewport(0, 0, this->width, this->height);
 
-  glEnable(GL_DEPTH_TEST);
+  glDisable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
   glEnable(GL_MULTISAMPLE);
   glEnable(GL_CULL_FACE);

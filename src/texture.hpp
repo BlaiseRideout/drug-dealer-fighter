@@ -16,6 +16,7 @@ class Texture {
 		~Texture();
 		Texture &operator=(Texture const &s);
 		Texture &operator=(Texture &&s);
+		bool operator==(Texture const &s);
 
 		unsigned int width();
 		unsigned int height();

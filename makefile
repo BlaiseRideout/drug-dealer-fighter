@@ -1,16 +1,16 @@
-# divamia
+# codeday
 
-NAME = divamia
+NAME = codeday
 SRC = src
 OBJ = obj
 CC = g++
 PREFIX = /usr/local
-RES = /usr/share/divamia
-LDFLAGS =  -lXi -lXrandr -lXxf86vm -lX11 -lpthread -lglfw3 -lGL -lGLEW -lGLU -lfreeimage `pkg-config --libs bullet`
-CFLAGS = --std=c++11 -Wall -O2 `pkg-config --cflags bullet`
+RES = /usr/share/codeday
+LDFLAGS =  -lXi -lXrandr -lXxf86vm -lX11 -lpthread -lglfw3 -lGL -lGLEW -lGLU -lfreeimage -lSDL2
+CFLAGS = --std=c++11 -Wall -O2
 INC = -Iinc
 
-_OBJS = main.o game.o window.o shader.o model.o vertex.o buffer.o vao.o texture.o camera.o demo.o
+_OBJS = game.o window.o shader.o vertex.o buffer.o vao.o texture.o controller.o physics.o player.o ${NAME}.o
 OBJS = $(patsubst %,$(OBJ)/%,$(_OBJS))
 
 $(OBJ)/%.o: $(SRC)/%.cpp

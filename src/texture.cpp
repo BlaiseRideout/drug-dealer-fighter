@@ -106,5 +106,9 @@ Texture &Texture::operator=(Texture &&s) {
 	return *this;
 }
 
+bool Texture::operator==(Texture const &s) {
+	return s.id == this->id;
+}
+
 GLuint Texture::currentTexture;
 std::map<GLuint, unsigned int> Texture::refCount;
