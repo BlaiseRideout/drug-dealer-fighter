@@ -1,4 +1,4 @@
-Divamia
+Drug Dealer Fighter
 =======
 
-Simple C++ graphics/game engine
+Simple C++ fighting game
