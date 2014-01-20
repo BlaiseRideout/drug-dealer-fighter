@@ -5,15 +5,12 @@ Game::Game() : window(800, 600, false, 3, 3) {
   this->running = true;
 }
 
-<<<<<<< Updated upstream
-=======
 Game::Game(std::string title) : Game(title, 3, 1) {
 }
 
 Game::Game() : Game("Divamia") {
 }
 
->>>>>>> Stashed changes
 Game::~Game() {
   glfwTerminate();
 }
