@@ -2,6 +2,7 @@
 
 #include <cmath>
 #include <iostream>
+#include <algorithm>
 
 inline float cross(glm::vec2 v1, glm::vec2 v2) {
 	return v1.x * v2.y - v1.y * v2.x;
@@ -45,7 +46,7 @@ void Link::update() {
 }
 
 void Link::correct(std::shared_ptr<Link> l) {
-	std::shared_ptr<Mass> hand;
+	/*std::shared_ptr<Mass> hand;
 	std::shared_ptr<Mass> notHand;
 	bool isL = false;
 	if(this->mass1->isHand) {
@@ -67,7 +68,7 @@ void Link::correct(std::shared_ptr<Link> l) {
 		isL = true;
 	}
 	else
-		return;
+		return; */
 
 	glm::vec2 p = this->mass1->pos;
 	glm::vec2 r = this->mass2->pos - p;
@@ -95,24 +96,115 @@ void Link::correct(std::shared_ptr<Link> l) {
 		if(0 <= t && t <= 1 && 0 <= u && u <= 1) {
 			// the lines intersect
 			glm::vec2 iPoint = p + t * r;
-			if(glm::length(hand->pos - hand->ppos) > 0.1f) {
-				if(isL) {
-					if(glm::length(hand->pos - hand->ppos) > 5.0f && this->mass1->b->onCollide)
-						this->mass1->b->onCollide();
+			float scale = 1.0f;
 
-					this->mass1->pos += glm::normalize(hand->pos - notHand->pos) * 2.0f;
-					this->mass2->pos += glm::normalize(hand->pos - notHand->pos) * 2.0f;
-				}
-				else {
-					if(glm::length(hand->pos - hand->ppos) > 5.0f && l->mass1->b->onCollide)
+			std::vector<float> lengths({glm::length(iPoint - this->mass1->pos),
+				glm::length(iPoint - this->mass2->pos),
+				glm::length(iPoint - l->mass1->pos),
+				glm::length(iPoint - l->mass2->pos)
+			});
+
+			int min = std::min_element(lengths.begin(), lengths.end()) - lengths.begin();
+
+			if(min == 0) {
+				if(this->mass1->isHand) {
+					if(glm::length(this->mass1->pos - this->mass1->ppos) > 7.0f && l->mass1->b->onCollide) {
 						l->mass1->b->onCollide();
-
-					l->mass1->pos += glm::normalize(hand->pos - notHand->pos) * 2.0f;
-					l->mass2->pos += glm::normalize(hand->pos - notHand->pos) * 2.0f;
+						scale = 6.0f;
+					}
 				}
+
+				l->mass1->pos += glm::normalize(this->mass1->pos - this->mass1->ppos) * scale;
+				l->mass2->pos += glm::normalize(this->mass1->pos - this->mass1->ppos) * scale;
+
+				glm::vec2 off = iPoint - this->mass1->pos;
+
+				this->mass1->ppos = this->mass1->pos;
+				this->mass1->pos += off;
+
+				this->mass2->ppos = this->mass2->pos;
+				this->mass2->pos += off;
+			}
+			else if(min == 1) {
+				if(this->mass2->isHand) {
+					if(glm::length(this->mass2->pos - this->mass2->ppos) > 7.0f && l->mass1->b->onCollide) {
+						l->mass1->b->onCollide();
+						scale = 6.0f;
+					}
+				}
+
+				l->mass1->pos += glm::normalize(this->mass2->pos - this->mass2->ppos) * scale;
+				l->mass2->pos += glm::normalize(this->mass2->pos - this->mass2->ppos) * scale;
+
+				glm::vec2 off = iPoint - this->mass2->pos;
+
+				this->mass1->ppos = this->mass1->pos;
+				this->mass1->pos += off;
+
+				this->mass2->ppos = this->mass2->pos;
+				this->mass2->pos += off;
+			}
+			else if(min == 2) {
+				if(l->mass1->isHand) {
+					if(glm::length(l->mass1->pos - l->mass1->ppos) > 7.0f && this->mass1->b->onCollide) {
+						this->mass1->b->onCollide();
+						scale = 6.0f;
+					}
+				}
+
+				this->mass1->pos += glm::normalize(l->mass1->pos - l->mass1->ppos) * scale;
+				this->mass2->pos += glm::normalize(l->mass1->pos - l->mass1->ppos) * scale;
+				
+				glm::vec2 off =  iPoint - l->mass1->pos;
+
+				l->mass1->ppos = l->mass1->pos;
+				l->mass1->pos += off;
+
+				l->mass2->ppos = l->mass2->pos;
+				l->mass2->pos += off;
+			}
+			else if(min == 3) {
+				if(l->mass2->isHand) {
+					if(glm::length(l->mass2->pos - l->mass2->ppos) > 7.0f && this->mass1->b->onCollide) {
+						this->mass1->b->onCollide();
+						scale = 6.0f;
+					}
+				}
+
+				this->mass1->pos += glm::normalize(l->mass1->pos - l->mass2->ppos) * scale;
+				this->mass2->pos += glm::normalize(l->mass1->pos - l->mass2->ppos) * scale;
+				
+				glm::vec2 off = iPoint - l->mass2->pos;
+
+				l->mass1->ppos = l->mass1->pos;
+				l->mass1->pos += off;
+
+				l->mass2->ppos = l->mass2->pos;
+				l->mass2->pos += off;
 			}
 
-			hand->pos = iPoint;
+
+			/*if(isL) {
+				if(glm::length(hand->pos - hand->ppos) > 7.0f && this->mass1->b->onCollide) {
+					this->mass1->b->onCollide();
+					scale = 6.0f;
+				}
+
+				this->mass1->pos += glm::normalize(hand->pos - notHand->pos) * scale;
+				this->mass2->pos += glm::normalize(hand->pos - notHand->pos) * scale;
+			}
+			else {
+				if(glm::length(hand->pos - hand->ppos) > 7.0f && l->mass1->b->onCollide) {
+					l->mass1->b->onCollide();
+					scale = 6.0f;
+				}
+
+				l->mass1->pos += glm::normalize(hand->pos - notHand->pos) * scale;
+				l->mass2->pos += glm::normalize(hand->pos - notHand->pos) * scale;
+			}
+
+			hand->ppos = hand->pos;
+			hand->pos = iPoint; */
 
 		}
 	}
@@ -149,7 +241,7 @@ void Body::correct(std::shared_ptr<Body> body) {
 		if((*i)->collidable) {
 			for(auto j = body->links.begin(); j != body->links.end(); ++j) {
 				if((*j)->collidable)
-				(*i)->correct(*j);
+					(*i)->correct(*j);
 			}
 		}
 	}
@@ -165,10 +257,10 @@ void World::addBody(std::shared_ptr<Body> b) {
 void World::update() {
 	auto start = this->bodies.begin() + 1;
 	for(auto i = this->bodies.begin(); i != this->bodies.end(); ++i) {
-		(*i)->update();
 		for(auto j = start; j != this->bodies.end(); ++j) {
 			(*i)->correct(*j);
 		}
+		(*i)->update();
 		start++;
 	}
 }

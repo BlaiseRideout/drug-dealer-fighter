@@ -317,16 +317,7 @@ void Player::draw() {
 
 
 	std::vector<glm::vec2> lines_data;
-	/*for(auto body = this->world.bodies.begin(); body != this->world.bodies.end(); ++body) {
-		for(auto link = (*body)->links.begin(); link != (*body)->links.end(); ++link) {
-			lines_data.push_back((*link)->mass1->pos);
-			lines_data.push_back((*link)->mass2->pos);
-		}
-	} */
-/*	for(auto link = this->body->links.begin(); link != this->body->links.end(); ++link) {
-		lines_data.push_back((*link)->mass1->pos);
-		lines_data.push_back((*link)->mass2->pos);
-	} */
+
 	lines_data.push_back(this->body->masses[19]->pos);
 	lines_data.push_back(this->body->masses[20]->pos);
 	lines_data.push_back(this->body->masses[20]->pos);
@@ -335,6 +326,17 @@ void Player::draw() {
 	lines_data.push_back(this->body->masses[23]->pos);
 	lines_data.push_back(this->body->masses[23]->pos);
 	lines_data.push_back(this->body->masses[24]->pos);
+
+	/*for(auto body = this->world.bodies.begin(); body != this->world.bodies.end(); ++body) {
+		for(auto link = (*body)->links.begin(); link != (*body)->links.end(); ++link) {
+			lines_data.push_back((*link)->mass1->pos);
+			lines_data.push_back((*link)->mass2->pos);
+		}
+	} 
+	for(auto link = this->body->links.begin(); link != this->body->links.end(); ++link) {
+		lines_data.push_back((*link)->mass1->pos);
+		lines_data.push_back((*link)->mass2->pos);
+	}*/
 
 	this->links.loadData(lines_data);
 

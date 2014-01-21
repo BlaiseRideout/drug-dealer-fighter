@@ -1,4 +1,4 @@
-#version 330 core
+#version 140
 in vec3 vertexPosition;
 
 uniform mat4 P;

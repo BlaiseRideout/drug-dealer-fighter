@@ -5,7 +5,7 @@
 #include <time.h>
 
 
-Codeday::Codeday() : Game("Codeday"), world(0.8f), player(world, false), player2(world, true) {
+Codeday::Codeday() : Game("Codeday", 3, 1), world(0.8f), player(world, false), player2(world, true) {
 	//srand(time(0));
 }
 
