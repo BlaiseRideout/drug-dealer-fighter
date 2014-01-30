@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <string>
 
 Controller::Controller() {
 	if(!SDL_WasInit(SDL_INIT_JOYSTICK))

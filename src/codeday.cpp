@@ -37,13 +37,15 @@ void Codeday::draw() {
 	this->player2.draw();
 }
 
+
+
 int main(int argc, char **argv) {
 	try {
 		Codeday game;
 		game.run();
-		return 0;
 	}
 	catch(const std::exception &exc) {
 		std::cerr << exc.what() << std::endl;
 	}
+	return 0;
 }

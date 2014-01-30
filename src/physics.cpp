@@ -16,8 +16,8 @@ Mass::Mass(std::shared_ptr<Body> b, glm::vec2 pos, bool isHand) : b(b), pos(pos)
 
 void Mass::update() {
 	glm::vec2 vel = this->pos - this->ppos;
-	vel.x *= 0.95;
-	vel.y *= 0.95;
+	vel.x *= 0.95f;
+	vel.y *= 0.95f;
 
 	this->ppos = pos;
 	this->pos += vel;
@@ -38,8 +38,8 @@ void Link::update() {
 	glm::vec2 line = this->mass1->pos - this->mass2->pos;
 	float offset = length - glm::length(line);
 	line = glm::normalize(line);
-	line.x *= offset * strength * .5;
-	line.y *= offset * strength * .5;
+	line.x *= offset * strength * .5f;
+	line.y *= offset * strength * .5f;
 
 	this->mass1->pos += line;
 	this->mass2->pos -= line;

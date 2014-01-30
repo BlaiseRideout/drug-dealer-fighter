@@ -9,7 +9,6 @@ class Texture {
 	public:
 		Texture();
 		Texture(Texture const &t);
-		Texture(Texture &&t);
 		Texture(std::string name);
 		Texture(std::string name, GLint filter);
 		Texture(std::string name, GLint mag_filter, GLint min_filter);
